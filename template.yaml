@@ -1,0 +1,489 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  my-chat-app
+
+  Sample SAM Template for my-chat-app
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Parameters:
+  SubcribeTable:
+    Type: String
+    Default: 'my_connectionsIds'
+    Description: this name crate the dynamodb to store the id of the connected client
+
+  SubcribTopic:
+    Type: String
+    Default: 'my_Topics'
+    Description: this table used for get the Arn for specific topic
+    
+
+Resources:
+  # Socket Def
+  ChatWebSocket:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+     Name: chatWebSocket
+     ProtocolType: WEBSOCKET
+     RouteSelectionExpression: "$request.body.action"
+#  connection route---------------
+  ConnectRoute: 
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      RouteKey: $connect
+      AuthorizationType: NONE
+      OperationName: connectionRoute
+      Target: !Join
+      - '/'
+      - - 'integrations'
+        - !Ref ConnectionInteg
+  
+  ConnectionInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      Description: connect Intergration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnConnectFunction.Arn}/invocations
+# _--------------------------------
+
+# disconnect route----------------
+  DisConnectRoute: 
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      OperationName: disconnectionRoute
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DisConnectionInteg
+  
+  DisConnectionInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      Description: Disconnect Intergration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisConnectFunction.Arn}/invocations
+# ---------------------------------
+
+# subcribe route
+# 
+
+  SubcriptionRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      RouteKey: Subcribtion
+      AuthorizationType: NONE
+      OperationName: subcribtion
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SubcribtionInteg
+
+  
+
+# 
+  SubcribtionInteg: 
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      Description: subcription Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub:
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnSubcribtionFunction.Arn}/invocations
+          
+ 
+
+# ---------------------------------
+
+# send notification----------------
+  SendRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      RouteKey: sendmessage
+      AuthorizationType: NONE
+      OperationName: SendRoute
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SendInteg
+  SendInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      Description: Send Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri: 
+        Fn::Sub:
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations
+
+# ---------------------------------
+
+            
+
+  Deployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - ConnectRoute
+      - DisConnectRoute
+      - SendRoute
+      - SubcriptionRoute
+    Properties:
+      ApiId: !Ref ChatWebSocket
+
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: Stag
+      Description: Stage of Stag
+      DeploymentId: !Ref Deployment
+      ApiId: !Ref ChatWebSocket
+
+
+#  table recode subcription
+
+#  
+  ConnectionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "connectionId"
+          AttributeType: "S"
+
+      KeySchema:
+        - AttributeName: "connectionId"
+          KeyType: "HASH"
+
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+      SSESpecification:
+        SSEEnabled: True
+      TableName: !Ref SubcribeTable
+
+
+  TopicTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "topicName"
+          AttributeType: "S"
+
+      KeySchema:
+        - AttributeName: "topicName"
+          KeyType: "HASH"
+
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+      SSESpecification:
+        SSEEnabled: True
+      TableName: !Ref SubcribTopic
+
+  MessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "message"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "message"
+          KeyType: "HASH"
+
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+      SSESpecification:
+        SSEEnabled: True
+      TableName: Messages
+
+ # connection function
+  OnConnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: socket-lambda/connect/
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+           TABLE_NAME: !Ref SubcribeTable
+      Policies:
+      -  DynamoDBCrudPolicy:
+          TableName: !Ref SubcribeTable
+
+
+  OnConnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - ChatWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnConnectFunction
+      Principal: apigateway.amazonaws.com
+          
+#  disconnection function
+  OnDisConnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: socket-lambda/disconnect/
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+           TABLE_NAME: !Ref SubcribeTable
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref SubcribeTable
+  OnDisConnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - ChatWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnDisConnectFunction
+      Principal: apigateway.amazonaws.com
+
+# 
+  OnSubcribtionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: socket-lambda/subcribtion/
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref SubcribeTable
+
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref SubcribeTable
+
+  OnSubcribtionPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - ChatWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref  OnSubcribtionFunction
+      Principal: apigateway.amazonaws.com
+ # send notification func
+  SendMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: socket-lambda/messages/
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref SubcribeTable
+          CALLBACK_URL: !Sub '${ChatWebSocket}.execute-api.${AWS::Region}.amazonaws.com/Stag'
+
+
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Method: post
+            Path: /notification 
+    
+        
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref SubcribeTable
+      - Statement:
+        - Effect: Allow
+          Action:
+          - 'execute-api:ManageConnections'
+          Resource:
+          - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ChatWebSocket}/*'        
+#  publish messages to SNS
+  TopicInvokePermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      Action: lambda:InvokeFunction
+      Principal: sns.amazonaws.com
+      SourceArn:  !Ref WebSocketTopic
+      FunctionName: !Ref SendMessageFunction
+
+  PublishMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: gateway-lambda/publish-messages/
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          TOPIC_WEBSOCKET: !Ref WebSocketTopic
+          TOPIC_QUEUE: !Ref QueueTopic
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Method: post
+            Path: /publish
+      Policies:
+      - SNSCrudPolicy:
+          TopicName: "*"
+
+
+  PollMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties: 
+      CodeUri: gateway-lambda/poll-messages/
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref TransactionQueue
+      Events:
+        Api:
+          Type: Api
+          Properties:  
+            Method: get
+            Path: /poll
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName:  Messages
+        - SQSPollerPolicy:
+            QueueName: "*"
+        
+
+# TODO  pass the another lambda 
+  CreatTopicFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: gateway-lambda/create-topics/
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref SubcribTopic
+          SNS_Subcribtion: !Ref  SendMessageFunction
+      Events:
+       Api:
+        Type: Api
+        Properties:
+          Method: post
+          Path: /create
+      Policies:
+      - SNSCrudPolicy:
+          TopicName: "*"
+
+      - DynamoDBCrudPolicy:
+          TableName: !Ref SubcribTopic
+        # SnS:
+        #   Type: SNS
+        #   Properties:
+        #     Topic: arn:aws:sns:us-east-1:171054174355:invester
+
+#  create a topic
+  WebSocketTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: 
+            Fn::GetAtt:
+              - "SendMessageFunction"
+              - "Arn"
+          Protocol: lambda
+
+      TopicName: "clientNotification"
+
+
+
+  QueueTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "TransactionQueue"
+              - "Arn"
+          Protocol: sqs
+
+      TopicName: "massageQueue"
+
+
+
+      # TODO CREATE THE SQS SERVIVES 
+  TransactionQueue: 
+    Type: AWS::SQS::Queue
+    Properties: 
+      QueueName: 'Transactions'
+
+  SQSQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref TransactionQueue
+      PolicyDocument:
+        Id: AllowIncomingAccess
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service: 
+                sns.amazonaws.com 
+             
+            Action:
+              
+              - sqs:SendMessage
+              - sqs:ReceiveMessage
+            Resource: "*"
+          # - 
+          #   Effect: Allow
+          #   Principal:
+          #     Service":
+          #       lambda.amazonaws.com
+          #   Action:        
+          #       - sqs:SendMessage
+          #       - sqs:ReceiveMessage
+          #   Resource: "*"
+
+
+        # TODO CREATE SQS POLICY
+
+
+      
+
+
+
+Outputs:
+  ProdDataEndpoint:
+    Description: "API Prod stage endpoint"
+    Value: !Sub "https://${PublishMessageFunction}.execute-api.${AWS::Region}.amazonaws.com/Stag/"
+
+  PollEndPoint:
+    Description: "API for poll"
+    Value: !Sub "https://${PollMessageFunction}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+
+
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
