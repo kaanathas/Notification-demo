@@ -18,7 +18,7 @@ var params = {
 
    // Remove DelaySeconds parameter and value for FIFO queues
   MessageBody: message,
-  MessageDeduplicationId: "TheWhistler",  // Required for FIFO queues
+  MessageDeduplicationId:Date.now(),  // Required for FIFO queues
   MessageGroupId: "Group1",  // Required for FIFO queues
   QueueUrl: queueURL
 };
