@@ -97,7 +97,13 @@ After the connection success then subcribe any tittle using Subcription Route
    - [x] get messages as responce  :blush:
 
 
-    
+# TODO 
+
+   - [ ] Create the queue it will trigger the lambda
+   - [ ] Create FIFO type queue
+   - [ ] Do the unit test
+   - [ ] Cleanup the code  :v:
+   - [ ] Rewrite the document  :relaxed:
 
 
 
