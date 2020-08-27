@@ -25,7 +25,8 @@ The SQS have 1 Queue
     * Transactions
 
 The ApiGateway have 3 main enpoints
-    * crete-topic 
+
+    * create-topic 
       this is for creating a new topic in SNS
 
     * Publish-messages
@@ -34,7 +35,7 @@ The ApiGateway have 3 main enpoints
     * Poll-messages 
       this will poll messages from the SNS Queue
 
-#   Subcrbe any title
+#   Subcribe any title
 
 
 To connect with the route in terminal run 
@@ -42,14 +43,14 @@ To connect with the route in terminal run
     wscat -c <WebSocket URL>
 
 After the connection success then subcribe any tittle using Subcription Route
-   ```Json
+```Json
     
     {
         "action": "Subcribtion",
         "subcribe":"invester"
     }
 
-   ```
+```
 
 #  Publish any messages to a socket
 
@@ -60,7 +61,7 @@ After the connection success then subcribe any tittle using Subcription Route
     
     request body should be
 
-    ```json
+ ```json
       {
             "SNSTopic":"clientNotification",
             "messageOb":{
@@ -69,14 +70,14 @@ After the connection success then subcribe any tittle using Subcription Route
                          }
       }
 
-    ```
+ ```
 #  Publish any messages to SNS Queue
    if publish the message to the SNS Queue
    send the `POST` request to the publish-messages gateway
     
     request body should be
 
-    ```json
+ ```json
       {
             "SNSTopic":"TransactionsQueue",
             "messageOb":{
@@ -85,13 +86,16 @@ After the connection success then subcribe any tittle using Subcription Route
                          }
       }
 
-    ```
-#  Poll messages from SNS Queue
+ ```
+
+#  Polling messages from SNS Queue
    if poll the message to the SNS Queue
    send the `GET` request to the poll-messages gateway
 
+   - [x] delete the messages from queue after read
+   - [ ] get messages as responce :-1:
 
-   
+
     
 
 
