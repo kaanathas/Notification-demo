@@ -10,6 +10,7 @@ run
     sam deploy --guided
 
 This Websocket has 4 main route
+
     * $connect
     * $disconnect
     * Subcribtion
