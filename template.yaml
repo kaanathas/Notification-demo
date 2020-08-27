@@ -426,7 +426,7 @@ Resources:
               - "Arn"
           Protocol: sqs
 
-      TopicName: "massageQueue"
+      TopicName: "TransactionsQueue"
 
 
 
