@@ -94,7 +94,7 @@ After the connection success then subcribe any tittle using Subcription Route
    send the `GET` request to the poll-messages gateway
 
    - [x] delete the messages from queue after read
-   - [ ] get messages as responce :-1:
+   - [x] get messages as responce  :blush:
 
 
     
