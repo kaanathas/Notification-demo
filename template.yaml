@@ -318,7 +318,7 @@ Resources:
           - 'execute-api:ManageConnections'
           Resource:
           - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ChatWebSocket}/*'        
-#  publish messages to SNS
+#  publish messages from SNS
   TopicInvokePermission: 
     Type: AWS::Lambda::Permission
     Properties: 
@@ -338,6 +338,7 @@ Resources:
         Variables:
           TOPIC_WEBSOCKET: !Ref WebSocketTopic
           TOPIC_QUEUE: !Ref QueueTopic
+          TOPIC_QUEUE_TRI: !Ref QueueTrigger
       Events:
         Api:
           Type: Api
@@ -371,7 +372,27 @@ Resources:
         - SQSPollerPolicy:
             QueueName: "*"
         
-
+  QueueRiggerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: internal-services/queue-trigger/
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref QueueAsFIFO
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt QueueAsTrigger.Arn
+            BatchSize: 10
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: "*"
+          
+       
 # TODO  pass the another lambda 
   CreatTopicFunction:
     Type: AWS::Serverless::Function
@@ -401,7 +422,7 @@ Resources:
         #   Properties:
         #     Topic: arn:aws:sns:us-east-1:171054174355:invester
 
-#  create a topic
+#  The SNS topics
   WebSocketTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -428,19 +449,56 @@ Resources:
 
       TopicName: "TransactionsQueue"
 
+  QueueTrigger:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint:
+            Fn::GetAtt:
+              - "QueueAsTrigger"
+              - "Arn"
+          Protocol: sqs
+
+      TopicName: "QueueTrigger"
 
 
-      # TODO CREATE THE SQS SERVIVES 
+
+      # THE SQS SERVIVES 
   TransactionQueue: 
     Type: AWS::SQS::Queue
     Properties: 
       QueueName: 'Transactions'
+
+  QueueAsTrigger: 
+    Type: AWS::SQS::Queue
+    Properties: 
+      QueueName: 'LambdaTrigger'
+      RedrivePolicy:
+        deadLetterTargetArn : 
+              Fn::GetAtt: 
+                - "DeadQueue"
+                - "Arn"
+        maxReceiveCount : 100
+
+
+  DeadQueue: 
+    Type: AWS::SQS::Queue
+    Properties: 
+      QueueName: undeliverMessages
+
+  QueueAsFIFO: 
+    Type: AWS::SQS::Queue
+    Properties: 
+      QueueName: orderedMessagesQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: false
 
   SQSQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       Queues:
         - !Ref TransactionQueue
+        - !Ref QueueAsTrigger
       PolicyDocument:
         Id: AllowIncomingAccess
         Statement:

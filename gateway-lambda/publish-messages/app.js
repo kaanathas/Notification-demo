@@ -15,7 +15,10 @@ exports.handler = async event => {
   
 if(topic=='clientNotification'){
   topicArn=process.env.TOPIC_WEBSOCKET
-}else{
+}else if(topic="trigger"){
+  topicArn=process.env. TOPIC_QUEUE_TRI
+}
+else{
   topicArn=process.env.TOPIC_QUEUE
 }
  
@@ -27,6 +30,7 @@ if(topic=='clientNotification'){
 
 // Create publish parameters
 var params = {
+  
   Message: JSON.stringify(data.messageOb), /* required */
   TopicArn: topicArn
 };
