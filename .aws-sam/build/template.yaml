@@ -376,7 +376,7 @@ Resources:
           - TransactionQueue
           - Arn
         Protocol: sqs
-      TopicName: massageQueue
+      TopicName: TransactionsQueue
   TransactionQueue:
     Type: AWS::SQS::Queue
     Properties:

@@ -3,12 +3,10 @@ const AWS = require('aws-sdk');
 AWS.config.update({region:process.env.AWS_REGION });
 // Create an SQS service object
 
-exports.handler = event => {
+exports.handler = async event => {
   var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
   var queueURL = process.env.QUEUE_URL;
-
-  console.log("this is poll url "+queueURL)
-  var messgesPolled=''
+  var messgesPolled
   var params = {
    AttributeNames: [
       "SentTimestamp",
@@ -24,9 +22,9 @@ exports.handler = event => {
   };
   
 
-    sqs.receiveMessage(params).promise()
+   await sqs.receiveMessage(params).promise()
     .then(res=>{
-      console.log(res)
+     
       if(res.Messages){
         messgesPolled=JSON.parse(res.Messages[0].Body).Message;
         console.log("this messages come out"+ messgesPolled)
@@ -35,24 +33,21 @@ exports.handler = event => {
           ReceiptHandle: res.Messages[0].ReceiptHandle
         };
         sqs.deleteMessage(deleteParams).promise()
-        .then(res=>console.log(res+"delete complete"))
-        .catch(err=>{
-          return { 'statusCode': 500, 'body': err }
-        })
+        .then(res=>console.log("delete complete"))
+      
       }
     })
     .catch(err => {
       console.log(err)
-      return { 'statusCode': 500, 'body': err }});
+      return { 'statusCode': 500, 'body': err }})
    
   
 
     return {
-      'statusCode': 200,
-      'body':  messgesPolled
+      statusCode: 200,
+      body:  messgesPolled
           
-
-  }
+  };
 
 
 };

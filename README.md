@@ -14,7 +14,7 @@ This Websocket has 4 main route
     * $connect
     * $disconnect
     * Subcribtion
-    * senmessage
+    * sendmessage
 
 The SNS have 2 topic
     
@@ -82,7 +82,7 @@ After the connection success then subcribe any tittle using Subcription Route
       {
             "SNSTopic":"TransactionsQueue",
             "messageOb":{
-                       
+                         "id":"1",
                         "message":"this sample messages to the transaction Queue"
                          }
       }
