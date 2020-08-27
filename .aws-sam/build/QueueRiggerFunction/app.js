@@ -13,12 +13,15 @@ exports.handler = async(event, context) => {
     console.log(JSON.parse(message))
 
     var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
-
+    // var id=Math.floor(Date.now() / 1000).toString
+    var date = new Date();
+    var timestamp = date.getTime();
+    console.log(typeof timestamp);
 var params = {
 
    // Remove DelaySeconds parameter and value for FIFO queues
   MessageBody: message,
-  MessageDeduplicationId:Date.now(),  // Required for FIFO queues
+  MessageDeduplicationId: JSON.parse(message).id,  // Required for FIFO queues
   MessageGroupId: "Group1",  // Required for FIFO queues
   QueueUrl: queueURL
 };

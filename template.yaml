@@ -219,7 +219,7 @@ Resources:
   OnConnectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: socket-lambda/connect/
+      CodeUri: src/socket-lambda/connect/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -244,7 +244,7 @@ Resources:
   OnDisConnectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: socket-lambda/disconnect/
+      CodeUri: src/socket-lambda/disconnect/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -267,7 +267,7 @@ Resources:
   OnSubcribtionFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: socket-lambda/subcribtion/
+      CodeUri: src/socket-lambda/subcribtion/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -291,7 +291,7 @@ Resources:
   SendMessageFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: socket-lambda/messages/
+      CodeUri: src/socket-lambda/messages/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -330,7 +330,7 @@ Resources:
   PublishMessageFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: gateway-lambda/publish-messages/
+      CodeUri: src/gateway-lambda/publish-messages/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -353,7 +353,7 @@ Resources:
   PollMessageFunction:
     Type: AWS::Serverless::Function
     Properties: 
-      CodeUri: gateway-lambda/poll-messages/
+      CodeUri: src/gateway-lambda/poll-messages/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -375,7 +375,7 @@ Resources:
   QueueRiggerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: internal-services/queue-trigger/
+      CodeUri: src/internal-services/queue-trigger/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -397,7 +397,7 @@ Resources:
   CreatTopicFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: gateway-lambda/create-topics/
+      CodeUri: src/gateway-lambda/create-topics/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
