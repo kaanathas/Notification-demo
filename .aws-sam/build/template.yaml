@@ -301,6 +301,8 @@ Resources:
             Ref: WebSocketTopic
           TOPIC_QUEUE:
             Ref: QueueTopic
+          TOPIC_QUEUE_TRI:
+            Ref: QueueTrigger
       Events:
         Api:
           Type: Api
@@ -331,6 +333,29 @@ Resources:
       - DynamoDBCrudPolicy:
           TableName: Messages
       - SQSPollerPolicy:
+          QueueName: '*'
+  QueueRiggerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: QueueRiggerFunction
+      Handler: app.handler
+      MemorySize: 256
+      Runtime: nodejs12.x
+      Environment:
+        Variables:
+          QUEUE_URL:
+            Ref: QueueAsFIFO
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue:
+              Fn::GetAtt:
+              - QueueAsTrigger
+              - Arn
+            BatchSize: 10
+      Policies:
+      - SQSSendMessagePolicy:
           QueueName: '*'
   CreatTopicFunction:
     Type: AWS::Serverless::Function
@@ -376,16 +401,47 @@ Resources:
           - TransactionQueue
           - Arn
         Protocol: sqs
-      TopicName: massageQueue
+      TopicName: TransactionsQueue
+  QueueTrigger:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+      - Endpoint:
+          Fn::GetAtt:
+          - QueueAsTrigger
+          - Arn
+        Protocol: sqs
+      TopicName: QueueTrigger
   TransactionQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: Transactions
+  QueueAsTrigger:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: LambdaTrigger
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+          - DeadQueue
+          - Arn
+        maxReceiveCount: 100
+  DeadQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: undeliverMessages
+  QueueAsFIFO:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: orderedMessagesQueue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: false
   SQSQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       Queues:
       - Ref: TransactionQueue
+      - Ref: QueueAsTrigger
       PolicyDocument:
         Id: AllowIncomingAccess
         Statement:

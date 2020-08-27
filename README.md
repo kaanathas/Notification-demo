@@ -14,16 +14,20 @@ This Websocket has 4 main route
     * $connect
     * $disconnect
     * Subcribtion
-    * senmessage
+    * sendmessage
 
-The SNS have 2 topic
+The SNS have 3 topic
     
     * clientNotification
     * TransactionsQueue
+    * QueueTrigger
 
-The SQS have 1 Queue 
+The SQS have 4 Queue 
 
     * Transactions
+    * orderedMessagesQueue.fifo
+    * LambdaTrigger
+    * undeliverMessages
 
 The ApiGateway have 3 main enpoints
 
@@ -82,7 +86,23 @@ After the connection success then subcribe any tittle using Subcription Route
       {
             "SNSTopic":"TransactionsQueue",
             "messageOb":{
-                       
+                         "id":"1",
+                        "message":"this sample messages to the transaction Queue"
+                         }
+      }
+
+ ```
+ #  Publish any messages to SNS FIFO Queue
+   if publish the message to the SNS Queue
+   send the `POST` request to the publish-messages gateway
+    
+    request body should be
+
+ ```json
+      {
+            "SNSTopic":"trigger",
+            "messageOb":{
+                         "id":"1",
                         "message":"this sample messages to the transaction Queue"
                          }
       }
@@ -94,10 +114,16 @@ After the connection success then subcribe any tittle using Subcription Route
    send the `GET` request to the poll-messages gateway
 
    - [x] delete the messages from queue after read
-   - [ ] get messages as responce :-1:
+   - [x] get messages as responce  :blush:
 
 
-    
+# TODO 
+
+   - [x] Create the queue it will trigger the lambda
+   - [x] Create FIFO type queue
+   - [ ] Do the unit test  :pray:
+   - [ ] Cleanup the code  :v:
+   - [ ] Rewrite the document  :relaxed:
 
 
 
