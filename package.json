@@ -1,0 +1,30 @@
+{
+  "name": "my-chat-appsqs",
+  "version": "1.0.0",
+  "description": "This App is the simple Notification services that include Websocket ,SNS, SQS ,Lambda and Apigateway.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaanathas/Notification-demo.git"
+  },
+  "author": "kaanathas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaanathas/Notification-demo/issues"
+  },
+  "homepage": "https://github.com/kaanathas/Notification-demo#readme",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "chai": "^4.2.0",
+    "ws": "^7.3.1"
+  },
+  "devDependencies": {
+    "mocha": "^8.1.2"
+  }
+}
