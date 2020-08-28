@@ -27,7 +27,7 @@ Resources:
   ChatWebSocket:
     Type: AWS::ApiGatewayV2::Api
     Properties:
-     Name: chatWebSocket
+     Name: web-socket-test
      ProtocolType: WEBSOCKET
      RouteSelectionExpression: "$request.body.action"
 #  connection route---------------

@@ -1,4 +1,4 @@
-# my-Notification-app
+# sample system
 
 This App is the simple Notification services that include Websocket ,SNS, SQS ,Lambda and Apigateway. 
 
