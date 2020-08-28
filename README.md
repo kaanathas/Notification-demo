@@ -51,7 +51,7 @@ After the connection success then subcribe any tittle using Subcription Route
 ```Json
     
     {
-        "action": "Subcribtion",
+        "action": "subcribtion",
         "subcribe":"invester"
     }
 
@@ -68,7 +68,7 @@ After the connection success then subcribe any tittle using Subcription Route
 
  ```json
       {
-            "SNSTopic":"clientNotification",
+            "SNSTopic":"client-notification",
             "messageOb":{
                         "subcribe":"invester",
                         "message":"this is sample message to invester subcribers"
@@ -84,7 +84,7 @@ After the connection success then subcribe any tittle using Subcription Route
 
  ```json
       {
-            "SNSTopic":"TransactionsQueue",
+            "SNSTopic":"transactions-queue",
             "messageOb":{
                          "id":"1",
                         "message":"this sample messages to the transaction Queue"

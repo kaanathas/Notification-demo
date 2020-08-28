@@ -13,12 +13,12 @@ exports.handler = async event => {
   var topic=data.SNSTopic
 
   
-if(topic=='clientNotification'){
+if(topic=='client-notification'){
   topicArn=process.env.TOPIC_WEBSOCKET
 }else if(topic="trigger"){
   topicArn=process.env. TOPIC_QUEUE_TRI
 }
-else{
+else if(topic="transactions-queue"){
   topicArn=process.env.TOPIC_QUEUE
 }
  
