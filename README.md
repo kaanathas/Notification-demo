@@ -124,7 +124,7 @@ After the connection success then subcribe any tittle using Subcription Route
 
    - [x] Create the queue it will trigger the lambda
    - [x] Create FIFO type queue
-   - [ ] Do the unit test  :pray:
+   - [x] Do the unit test  :pray:
    - [ ] Cleanup the code  :v:
    - [ ] Rewrite the document  :relaxed:
 
