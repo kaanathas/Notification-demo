@@ -14,7 +14,18 @@ var publishdata={
 "SNSTopic":"client-notification"
 }
 
-
+var publishQueueData={ 
+  "messageOb":{
+          "id":"4",
+          "message1":"check fifo queue"},
+  "SNSTopic":"transactions-queue"
+  }
+var publishTriggerData={ 
+    "messageOb":{
+            "id":"4",
+            "message":"check fifo queue"},
+    "SNSTopic":"trigger"
+    }
 
 
 var wsconnect=function ConnectSocket(url){
@@ -40,13 +51,30 @@ var publish=function PublishMessages(MessagePayload){
    
 }
 
+var poll=function pollMessages(){
+  return new Promise ((resolve,reject)=>{
+    axios.get('https://p217jh5pj4.execute-api.us-east-1.amazonaws.com/Prod/poll')
+    .then(function (response) {
+      resolve(response)
+    })
+    .catch(function (error) {
+     reject(error)
+    })
+    
+  })
+}
+
 
 
 module.exports={
     wsconnect,
     publish,
+    poll,
     subPayload,
-    publishdata
+    publishdata,
+    publishQueueData,
+    publishTriggerData,
+    
 }
 
 

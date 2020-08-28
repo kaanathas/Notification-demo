@@ -15,10 +15,10 @@ exports.handler = async event => {
   
 if(topic=='client-notification'){
   topicArn=process.env.TOPIC_WEBSOCKET
-}else if(topic="trigger"){
+}else if(topic=="trigger"){
   topicArn=process.env. TOPIC_QUEUE_TRI
 }
-else if(topic="transactions-queue"){
+else if(topic=="transactions-queue"){
   topicArn=process.env.TOPIC_QUEUE
 }
  
@@ -42,7 +42,7 @@ var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params)
 await publishTextPromise
 .then(
   data=>{
-    console.log(`Message ${params.Message} send sent to the topic ${params.TopicArn}`);
+    console.log(`Message ${params.Message} send sent to the topic arn ${params.TopicArn}`);
     console.log("MessageID is " + data.MessageId);
     returnmessage=params.Message
    
