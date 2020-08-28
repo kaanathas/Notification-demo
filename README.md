@@ -40,7 +40,7 @@ The ApiGateway have 3 main enpoints
     * poll-messages 
       this will poll messages from the SNS Queue
 
-#   Subcribe any title
+#   Subcribe  title
 
 
 To connect with the route in terminal run 
@@ -57,7 +57,7 @@ After the connection success then subcribe any tittle using Subcription Route
 
 ```
 
-#  Publish any messages to a socket
+#  Publish  messages to a socket
 
    The publish-messages lambda handle the message work flow
 
@@ -76,7 +76,7 @@ After the connection success then subcribe any tittle using Subcription Route
       }
 
  ```
-#  Publish any messages to SNS Queue
+#  Publish messages to SNS Queue
    if publish the message to the SNS Queue
    send the `POST` request to the publish-messages gateway
     
@@ -92,11 +92,14 @@ After the connection success then subcribe any tittle using Subcription Route
       }
 
  ```
- #  Publish any messages to SNS FIFO Queue
+ #  Publish messages to SNS FIFO Queue
    if publish the message to the SNS Queue
    send the `POST` request to the publish-messages gateway
     
-    request body should be
+    1. trigger topic send the messages to queue-trigger (SNS queue)
+    2. queue-tri
+
+     request body should be
 
  ```json
       {
