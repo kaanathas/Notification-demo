@@ -18,26 +18,26 @@ This Websocket has 4 main route
 
 The SNS have 3 topic
     
-    * clientNotification
-    * TransactionsQueue
-    * QueueTrigger
+    * client-notification
+    * transactions-queue
+    * queue-trigger
 
 The SQS have 4 Queue 
 
-    * Transactions
-    * orderedMessagesQueue.fifo
-    * LambdaTrigger
-    * undeliverMessages
+    * transactions
+    * ordered-messages-queue.fifo
+    * lambda-trigger
+    * undeliver-messages
 
 The ApiGateway have 3 main enpoints
 
     * create-topic 
       this is for creating a new topic in SNS
 
-    * Publish-messages
+    * publish-messages
       this publish the messages to WebSockets or SQS Queue
 
-    * Poll-messages 
+    * poll-messages 
       this will poll messages from the SNS Queue
 
 #   Subcribe any title

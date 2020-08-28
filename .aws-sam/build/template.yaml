@@ -73,7 +73,7 @@ Resources:
     Properties:
       ApiId:
         Ref: ChatWebSocket
-      RouteKey: Subcribtion
+      RouteKey: subcribtion
       AuthorizationType: NONE
       OperationName: subcribtion
       Target:
@@ -391,7 +391,7 @@ Resources:
           - SendMessageFunction
           - Arn
         Protocol: lambda
-      TopicName: clientNotification
+      TopicName: client-notification
   QueueTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -401,7 +401,7 @@ Resources:
           - TransactionQueue
           - Arn
         Protocol: sqs
-      TopicName: TransactionsQueue
+      TopicName: transactions-queue
   QueueTrigger:
     Type: AWS::SNS::Topic
     Properties:
@@ -411,15 +411,15 @@ Resources:
           - QueueAsTrigger
           - Arn
         Protocol: sqs
-      TopicName: QueueTrigger
+      TopicName: queue-trigger
   TransactionQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: Transactions
+      QueueName: transactions
   QueueAsTrigger:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: LambdaTrigger
+      QueueName: lambda-trigger
       RedrivePolicy:
         deadLetterTargetArn:
           Fn::GetAtt:
@@ -429,11 +429,11 @@ Resources:
   DeadQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: undeliverMessages
+      QueueName: undeliver-messages
   QueueAsFIFO:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: orderedMessagesQueue.fifo
+      QueueName: ordered-messages-queue.fifo
       FifoQueue: true
       ContentBasedDeduplication: false
   SQSQueuePolicy:

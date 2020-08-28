@@ -85,7 +85,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref ChatWebSocket
-      RouteKey: Subcribtion
+      RouteKey: subcribtion
       AuthorizationType: NONE
       OperationName: subcribtion
       Target: !Join
@@ -219,7 +219,7 @@ Resources:
   OnConnectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/socket-lambda/connect/
+      CodeUri: src/ws-lambda/ws-connect/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -244,7 +244,7 @@ Resources:
   OnDisConnectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/socket-lambda/disconnect/
+      CodeUri: src/ws-lambda/ws-disconnect/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -267,7 +267,7 @@ Resources:
   OnSubcribtionFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/socket-lambda/subcribtion/
+      CodeUri: src/ws-lambda/ws-route-subcribtion/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -291,7 +291,7 @@ Resources:
   SendMessageFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/socket-lambda/messages/
+      CodeUri: src/ws-lambda/ws-messages/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -330,7 +330,7 @@ Resources:
   PublishMessageFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/gateway-lambda/publish-messages/
+      CodeUri: src/api-lambda/publish-messages/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -353,7 +353,7 @@ Resources:
   PollMessageFunction:
     Type: AWS::Serverless::Function
     Properties: 
-      CodeUri: src/gateway-lambda/poll-messages/
+      CodeUri: src/api-lambda/poll-messages/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -375,7 +375,7 @@ Resources:
   QueueRiggerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/internal-services/queue-trigger/
+      CodeUri: src/system-services/order-message/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -397,7 +397,7 @@ Resources:
   CreatTopicFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/gateway-lambda/create-topics/
+      CodeUri: src/api-lambda/create-topics/
       Handler: app.handler
       MemorySize: 256
       Runtime: nodejs12.x
@@ -433,7 +433,7 @@ Resources:
               - "Arn"
           Protocol: lambda
 
-      TopicName: "clientNotification"
+      TopicName: "client-notification"
 
 
 
@@ -447,7 +447,7 @@ Resources:
               - "Arn"
           Protocol: sqs
 
-      TopicName: "TransactionsQueue"
+      TopicName: "transactions-queue"
 
   QueueTrigger:
     Type: AWS::SNS::Topic
@@ -459,7 +459,7 @@ Resources:
               - "Arn"
           Protocol: sqs
 
-      TopicName: "QueueTrigger"
+      TopicName: "queue-trigger"
 
 
 
@@ -467,12 +467,12 @@ Resources:
   TransactionQueue: 
     Type: AWS::SQS::Queue
     Properties: 
-      QueueName: 'Transactions'
+      QueueName: 'transactions'
 
   QueueAsTrigger: 
     Type: AWS::SQS::Queue
     Properties: 
-      QueueName: 'LambdaTrigger'
+      QueueName: 'lambda-trigger'
       RedrivePolicy:
         deadLetterTargetArn : 
               Fn::GetAtt: 
@@ -484,12 +484,12 @@ Resources:
   DeadQueue: 
     Type: AWS::SQS::Queue
     Properties: 
-      QueueName: undeliverMessages
+      QueueName: undeliver-messages
 
   QueueAsFIFO: 
     Type: AWS::SQS::Queue
     Properties: 
-      QueueName: orderedMessagesQueue.fifo
+      QueueName: ordered-messages-queue.fifo
       FifoQueue: true
       ContentBasedDeduplication: false
 
